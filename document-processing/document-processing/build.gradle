@@ -1,0 +1,63 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.1.2'
+	id 'io.spring.dependency-management' version '1.1.2'
+}
+
+group = 'ru.veselov'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2022.0.3")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	//implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+	// https://mvnrepository.com/artifact/org.docx4j/docx4j-JAXB-ReferenceImpl
+	implementation 'org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9'
+	// https://mvnrepository.com/artifact/org.docx4j/docx4j-export-fo
+	// https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
+	implementation 'org.apache.poi:poi-ooxml:5.2.3'
+	// https://mvnrepository.com/artifact/org.apache.poi/poi
+	implementation 'org.apache.poi:poi:5.2.3'
+
+	// https://mvnrepository.com/artifact/fr.opensagres.xdocreport/fr.opensagres.poi.xwpf.converter.pdf
+	implementation 'fr.opensagres.xdocreport:fr.opensagres.poi.xwpf.converter.pdf:2.0.4'
+
+
+
+
+	implementation 'org.docx4j:docx4j-export-fo:11.4.9'
+
+
+
+	//implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
