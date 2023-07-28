@@ -1,33 +1,41 @@
 package ru.veselov.documentprocessing.service;
 
-import com.lowagie.text.pdf.PdfWriter;
-import fr.opensagres.poi.xwpf.converter.core.IXWPFConverter;
-import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
-import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class PassportDocService {
+
+    private final WebClient webClient = WebClient.create();
 
 
     public void processPassport() throws Docx4JException, IOException {
         String path =
-                "C:\\Users\\VeselovND\\git\\PTPassportProject\\document-processing\\document-processing\\src\\main\\resources\\file.docx";
+                //"C:\\Users\\VeselovND\\git\\PTPassportProject\\document-processing\\document-processing\\src\\main\\resources\\file.docx";
+                "/home/nikolay/git/PTPassportProject/document-processing/document-processing/src/main/resources/file.docx";
         Path file = Path.of(path);
         boolean exists = file.toFile().exists();
         String absolutePath = file.toString();
@@ -35,8 +43,6 @@ public class PassportDocService {
 
         try (XWPFDocument doc = new XWPFDocument(
                 Files.newInputStream(file))) {
-            System.out.println(doc);
-            List<XWPFTable> tables = doc.getTables();
             XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
             List<XWPFParagraph> paragraphs = extractor.getDocument().getParagraphs();
             for (XWPFParagraph paragraph : paragraphs) {
@@ -51,64 +57,24 @@ public class PassportDocService {
                     }
                 }
             }
-
+            byte[] bytes = Files.readAllBytes(file);
             String docText = extractor.getText();
-
-
             System.out.println(docText);
-            FileOutputStream fileOutputStream = new FileOutputStream(Path.of("sample.pdf").toFile());
-            IXWPFConverter<PdfOptions> instance = PdfConverter.getInstance();
-            instance.convert(doc, fileOutputStream, PdfOptions.create());
+            MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+            bodyBuilder.part("file", bytes).header("Content-Disposition",
+                    "form-data; name=file").filename("file.docx");
+            Mono<DataBuffer> dataBufferMono = webClient.post().uri("http://localhost:3000/forms/libreoffice/convert")
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
+                    .retrieve().bodyToMono(DataBuffer.class);
 
-
-        }
-
-/*        WordprocessingMLPackage wordprocessingMLPackage = WordprocessingMLPackage.load(file);
-        MainDocumentPart mainDocumentPart = wordprocessingMLPackage.getMainDocumentPart();
-
-        Path tmp = Files.createFile(Path.of("sample.pdf"));
-        FileOutputStream os = new FileOutputStream(tmp.toFile());
-
-
-        String textNodesXPath = "//w:t";
-        try {
-            List<Object> jaxbNodesViaXPath = mainDocumentPart.getJAXBNodesViaXPath(textNodesXPath, false);
-
-            for (int i = 0; i < 1; i++) {
-                for (Object obj : jaxbNodesViaXPath) {
-                    Text text = (Text) ((JAXBElement<?>) obj).getValue();
-                    String value = text.getValue();
-                    System.out.println(value);
-
-                    if (value.equals("NUMBERUP")) {
-                        log.info("found upper number" + i);
-                        text.setValue("hello i am new number");
-                    }
-                    if (value.equals("NUMBERDOWN")) {
-                        log.info("found lower number");
-                        text.setValue("hello i am number below" + i);
-                    }
-                    if (value.equals("DATE")) {
-                        log.info("found lower number");
-                        text.setValue(LocalDate.now() + "г. ");
-                    }
-
-                }
-                Docx4J.toPDF(wordprocessingMLPackage, os);
-            }
-            os.flush();
+            //convert receivedByteArrayToPdfFile
+            DataBuffer block = dataBufferMono.block();
+            InputStream inputStream = block.asInputStream();
+            OutputStream os = new FileOutputStream("sample.pdf");
+            IOUtils.copy(inputStream, os);
             os.close();
 
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
         }
-
-
-
-        //wordprocessingMLPackage.save(new File("saved.docx"));*/
-
-
     }
-
-
 }

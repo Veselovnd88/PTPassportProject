@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/PTPassportProject.iml" filepath="$PROJECT_DIR$/.idea/PTPassportProject.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/document-processing.main.iml" filepath="$PROJECT_DIR$/.idea/modules/document-processing.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ru.veselov.document-processing.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ru.veselov.document-processing.main.iml" />
     </modules>
   </component>
 </project>

@@ -25,16 +25,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
 	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
-	// https://mvnrepository.com/artifact/org.docx4j/docx4j-JAXB-ReferenceImpl
-	implementation 'org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9'
-	// https://mvnrepository.com/artifact/org.docx4j/docx4j-export-fo
-	// https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.apache.poi:poi-ooxml:5.2.3'
 	// https://mvnrepository.com/artifact/org.apache.poi/poi
 	implementation 'org.apache.poi:poi:5.2.3'
+	// https://mvnrepository.com/artifact/commons-io/commons-io
+	implementation 'commons-io:commons-io:2.13.0'
 
-	// https://mvnrepository.com/artifact/fr.opensagres.xdocreport/fr.opensagres.poi.xwpf.converter.pdf
-	implementation 'fr.opensagres.xdocreport:fr.opensagres.poi.xwpf.converter.pdf:2.0.4'
+
+
 
 
 
